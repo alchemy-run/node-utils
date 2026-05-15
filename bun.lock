@@ -9,22 +9,13 @@
         "typescript": "^6.0.3",
       },
     },
-    "packages/exit-hook": {
-      "name": "@alchemy.run/exit-hook",
+    "packages/node-utils": {
+      "name": "@alchemy.run/node-utils",
       "version": "0.0.0",
-    },
-    "packages/lockfile": {
-      "name": "@alchemy.run/lockfile",
-      "version": "0.0.0",
-      "dependencies": {
-        "@alchemy.run/exit-hook": "workspace:*",
-      },
     },
   },
   "packages": {
-    "@alchemy.run/exit-hook": ["@alchemy.run/exit-hook@workspace:packages/exit-hook"],
-
-    "@alchemy.run/lockfile": ["@alchemy.run/lockfile@workspace:packages/lockfile"],
+    "@alchemy.run/node-utils": ["@alchemy.run/node-utils@workspace:packages/node-utils"],
 
     "@types/bun": ["@types/bun@1.3.14", "", { "dependencies": { "bun-types": "1.3.14" } }, "sha512-h1hFqFVcvAvD9j9K7ZW7vd82aSA+rTdznZa+5bwvCwqSB1jmmfLcbIWhOLx1/+boy/xmjgCs/OMUL8hRJSmnPw=="],
 

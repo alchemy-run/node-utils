@@ -3,6 +3,12 @@
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    // Many test files are 1:1 mechanical ports from upstream JS — relax the
+    // strict-mode rules that would force us to manually annotate every callback
+    // parameter or guard against runtime tricks (e.g. `path.sep = '\\'`).
+    "strict": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false
   }
 }

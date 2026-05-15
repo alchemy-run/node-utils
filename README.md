@@ -19,6 +19,7 @@ All of these live in `packages/node-utils/src/`:
 | [`proper-lockfile`](https://github.com/moxystudio/node-proper-lockfile) | `lockfile.ts` (+ `index.ts`) |
 | [`retry`](https://github.com/tim-kos/node-retry)                        | `retry.ts`                   |
 | [`exit-hook`](https://github.com/sindresorhus/exit-hook)                | `exit-hook.ts`               |
+| [`ignore`](https://github.com/kaelzhang/node-ignore)                    | `ignore.ts`                  |
 
 ## `@alchemy.run/node-utils`
 

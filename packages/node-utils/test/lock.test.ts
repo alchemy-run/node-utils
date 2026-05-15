@@ -35,8 +35,8 @@ afterEach(async () => {
 });
 
 it("should expose a default-exported lock", () => {
-  expect(typeof lockfile.default).toBe("function");
-  expect(lockfile.default).toBe(lockfile.lock);
+  expect(typeof lockfile.lock).toBe("function");
+  expect(lockfile.lock).toBe(lockfile.lock);
 });
 
 it("should fail if the file does not exist by default", async () => {

@@ -26,9 +26,7 @@ env:
   # All publishable packages share one version, so all three package.jsons
   # plus bun.lock and CHANGELOG.md get rewritten.
   BUMP_ARTIFACT_PATHS: |
-    packages/cloudflare-rolldown-plugin/package.json
-    packages/cloudflare-runtime/package.json
-    packages/cloudflare-vite-plugin/package.json
+    packages/node-utils/package.json
     bun.lock
     CHANGELOG.md
 
@@ -76,7 +74,7 @@ jobs:
             VERSION="${{ inputs.version-override }}"
           else
             bun ./scripts/bump.ts "${{ inputs.bump }}"
-            VERSION=$(node -p "require('./packages/cloudflare-rolldown-plugin/package.json').version")
+            VERSION=$(node -p "require('./packages/node-utils/package.json').version")
           fi
           echo "Resolved version: $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -191,7 +189,7 @@ jobs:
       - name: Publish
         env:
           VERSION: ${{ needs.bump.outputs.version }}
-          PKG_DIR: cloudflare-rolldown-plugin
+          PKG_DIR: node-utils
         run: |
           set -euo pipefail
           PKG_NAME=$(node -p "require('./packages/${PKG_DIR}/package.json').name")

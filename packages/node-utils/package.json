@@ -18,6 +18,11 @@
       "default": "./lib/index.js"
     }
   },
+  "dependencies": {
+    "@effect/platform-bun": "4.0.0-beta.66",
+    "@effect/platform-node": "4.0.0-beta.66",
+    "effect": "4.0.0-beta.66"
+  },
   "scripts": {
     "test": "bun test"
   },

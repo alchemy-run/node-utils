@@ -1,6 +1,9 @@
 node_modules/
+.vendor/
 coverage/
 test/tmp/
+**/test/tmp/
 test/*.log
+**/test/*.log
 lib/
 *.tsbuildinfo

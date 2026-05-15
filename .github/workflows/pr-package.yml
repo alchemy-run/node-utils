@@ -16,7 +16,7 @@ env:
 
 jobs:
   # ── Compute tags once so the publish + comment jobs use the same set. ─────
-  tags:
+  tag:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     outputs:
@@ -46,7 +46,7 @@ jobs:
 
   # ── Build + publish the package. ──────────────────────────────────────────
   publish:
-    needs: tags
+    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

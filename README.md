@@ -14,16 +14,15 @@ The originals are stable but unmaintained, CJS-only, and pull in `@types/*` and 
 
 All of these live in `packages/node-utils/src/`:
 
-| Original (CJS)                                                                        | Rewritten as                          |
-| ------------------------------------------------------------------------------------- | ------------------------------------- |
-| [`proper-lockfile`](https://github.com/moxystudio/node-proper-lockfile)               | `lockfile.ts` (+ `index.ts`)          |
-| [`retry`](https://github.com/tim-kos/node-retry)                                      | `retry.ts`                            |
-| [`signal-exit`](https://github.com/tapjs/signal-exit)                                 | `exit-hook.ts`                        |
-| [`graceful-fs`](https://github.com/isaacs/node-graceful-fs) sync/async shims          | `adapter.ts`                          |
+| Original (CJS)                                                          | Rewritten as                 |
+| ----------------------------------------------------------------------- | ---------------------------- |
+| [`proper-lockfile`](https://github.com/moxystudio/node-proper-lockfile) | `lockfile.ts` (+ `index.ts`) |
+| [`retry`](https://github.com/tim-kos/node-retry)                        | `retry.ts`                   |
+| [`exit-hook`](https://github.com/sindresorhus/exit-hook)                | `exit-hook.ts`               |
 
 ## `@alchemy.run/node-utils`
 
-A `proper-lockfile`-equivalent file lock, with `retry`, `signal-exit`, and the `graceful-fs` adapter all bundled in.
+A `proper-lockfile`-equivalent file lock, with `retry` and `exit-hook` bundled in.
 
 ```bash
 bun add @alchemy.run/node-utils
@@ -52,7 +51,7 @@ Locks are acquired with `mkdir` (atomic on every filesystem, including NFS), and
 - `update` — ms between `mtime` refreshes. Default `stale / 2`. Min `1000`, max `stale / 2`.
 - `retries` — number, or a [retry options object](packages/node-utils/src/retry.ts). Default `0`.
 - `realpath` — resolve symlinks. Default `true` (file must exist).
-- `fs` — custom fs. Defaults to a `graceful-fs`-style retrying wrapper.
+- `fs` — custom fs. Defaults to Node's `node:fs`.
 - `onCompromised` — callback. Defaults to throwing.
 - `lockfilePath` — override the `<file>.lock` path.
 
@@ -62,7 +61,7 @@ Sync variants (`lockSync` / `unlockSync` / `checkSync`) don't accept `retries`.
 
 ### Graceful exit
 
-Locks are removed automatically on process exit, except on `SIGKILL` or fatal VM errors. Wired up via the vendored `signal-exit` port.
+Locks are removed automatically on process exit, except on `SIGKILL` or fatal VM errors. Wired up via the vendored `exit-hook` port.
 
 ## Development
 

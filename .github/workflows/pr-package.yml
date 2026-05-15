@@ -1,0 +1,167 @@
+name: Publish Preview Packages
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  PR_PACKAGE_HOST: pkg.ing
+  NODE_VERSION: "24"
+  PKG_DIR: node-utils
+
+jobs:
+  # ── Compute tags once so the publish + comment jobs use the same set. ─────
+  tags:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.tags.outputs.tags }}
+      short: ${{ steps.tags.outputs.short }}
+    steps:
+      - id: tags
+        env:
+          EVENT: ${{ github.event_name }}
+          BRANCH: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          # PR builds run on the merge commit by default; tag the actual head sha
+          # so consumers can pin to a specific PR commit.
+          SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          short="${SHA:0:7}"
+          long="$SHA"
+          tags=("$short" "$long" "$BRANCH")
+          if [ "$EVENT" = "pull_request" ]; then
+            tags+=("pr-${PR_NUMBER}")
+          fi
+          json=$(printf '%s\n' "${tags[@]}" | jq -R . | jq -s -c .)
+          echo "tags=$json" >> "$GITHUB_OUTPUT"
+          echo "short=$short" >> "$GITHUB_OUTPUT"
+          echo "Tags: $json"
+
+  # ── Build + publish the package. ──────────────────────────────────────────
+  publish:
+    needs: tags
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - run: bun run build
+
+      - name: Publish
+        env:
+          TOKEN: ${{ secrets.PR_PACKAGE_TOKEN }}
+          TAGS: ${{ needs.tags.outputs.tags }}
+          SHORT_SHA: ${{ needs.tags.outputs.short }}
+        working-directory: packages/${{ env.PKG_DIR }}
+        run: |
+          set -euo pipefail
+          PKG_NAME=$(node -p "require('./package.json').name")
+          rm -f *.tgz
+          bun pm pack --destination .
+          tgz=$(ls *.tgz)
+          echo "Publishing ${PKG_NAME} (${tgz}) with tags ${TAGS}"
+          curl -fsSL --show-error -X PUT \
+            "https://${PR_PACKAGE_HOST}/projects/${PKG_NAME}/packages" \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "X-Tags: ${TAGS}" \
+            -H "Content-Type: application/gzip" \
+            --data-binary "@${tgz}"
+
+          INSTALL_URL="https://pkg.ing/${PKG_DIR}/${SHORT_SHA}"
+          echo "::notice title=${PKG_NAME}::Install: bun add ${INSTALL_URL}"
+          {
+            echo "### ${PKG_NAME}"
+            echo
+            echo '```sh'
+            echo "bun add ${INSTALL_URL}"
+            echo '```'
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── PR-only: sticky comment with install URL pinned to this commit. ───────
+  comment:
+    needs: [tags, publish]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Comment on PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SHORT_SHA: ${{ needs.tags.outputs.short }}
+        run: |
+          set -euo pipefail
+          MARKER="<!-- pr-package-comment -->"
+          PKG_NAME=$(node -p "require('./packages/${PKG_DIR}/package.json').name")
+
+          {
+            echo "$MARKER"
+            echo
+            echo "Install the package built from this commit:"
+            echo
+            echo "**${PKG_NAME}**"
+            echo '```sh'
+            echo "bun add https://pkg.ing/${PKG_DIR}/${SHORT_SHA}"
+            echo '```'
+          } > /tmp/body.md
+
+          BODY=$(cat /tmp/body.md)
+
+          existing=$(gh api --paginate \
+            "repos/${REPO}/issues/${PR_NUMBER}/comments" \
+            --jq ".[] | select(.body | startswith(\"${MARKER}\")) | .id" \
+            | head -1)
+
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/${REPO}/issues/comments/${existing}" -f body="$BODY"
+          else
+            gh api -X POST "repos/${REPO}/issues/${PR_NUMBER}/comments" -f body="$BODY"
+          fi
+
+  # ── main-only: post a commit comment with install URL pinned to this sha. ─
+  commit-comment:
+    needs: [tags, publish]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Comment on commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          SHORT_SHA: ${{ needs.tags.outputs.short }}
+        run: |
+          set -euo pipefail
+          PKG_NAME=$(node -p "require('./packages/${PKG_DIR}/package.json').name")
+          {
+            echo "Package built from this commit (\`${SHORT_SHA}\`):"
+            echo
+            echo "**${PKG_NAME}**"
+            echo '```sh'
+            echo "bun add https://pkg.ing/${PKG_DIR}/${SHORT_SHA}"
+            echo '```'
+          } > /tmp/body.md
+
+          BODY=$(cat /tmp/body.md)
+          gh api -X POST "repos/${REPO}/commits/${SHA}/comments" -f body="$BODY"

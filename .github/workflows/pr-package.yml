@@ -140,7 +140,7 @@ jobs:
   # ── main-only: post a commit comment with install URL pinned to this sha. ─
   commit-comment:
     needs: [tag, publish]
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -165,3 +165,4 @@ jobs:
 
           BODY=$(cat /tmp/body.md)
           gh api -X POST "repos/${REPO}/commits/${SHA}/comments" -f body="$BODY"
+

@@ -96,7 +96,7 @@ jobs:
 
   # ── PR-only: sticky comment with install URL pinned to this commit. ───────
   comment:
-    needs: [tags, publish]
+    needs: [tag, publish]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -139,7 +139,7 @@ jobs:
 
   # ── main-only: post a commit comment with install URL pinned to this sha. ─
   commit-comment:
-    needs: [tags, publish]
+    needs: [tag, publish]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:

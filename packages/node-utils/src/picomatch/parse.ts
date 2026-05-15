@@ -522,7 +522,7 @@ export function parse(input: string, options?: ParseOptions): State {
    * Fast paths
    */
   if (opts.fastpaths !== false && !/(^[*!]|[/()[\]{}"])/.test(input)) {
-    let backslashes = false;
+    let backslashes: boolean = false;
 
     let output = input.replace(
       REGEX_SPECIAL_CHARS_BACKREF,
@@ -548,7 +548,7 @@ export function parse(input: string, options?: ParseOptions): State {
       },
     );
 
-    if (backslashes === true) {
+    if (backslashes as boolean) {
       if (opts.unescape === true) {
         output = output.replace(/\\/g, "");
       } else {

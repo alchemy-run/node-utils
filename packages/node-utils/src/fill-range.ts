@@ -302,6 +302,8 @@ export interface FillRangeOptions {
   toRegex?: boolean;
   stringify?: boolean;
   strictRanges?: boolean;
+  strictZeros?: boolean;
+  shorthand?: boolean;
   step?: number | string;
   transform?: (value: number | string, index: number) => string | number;
 }
@@ -412,7 +414,7 @@ const toRange = (
 };
 
 const toRegex = (
-  start: string[] | number | string,
+  start: (string | number)[] | number | string,
   end: number | string | null,
   options: FillRangeOptions,
 ): string => {

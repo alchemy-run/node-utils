@@ -1,3 +1,4 @@
+// @ts-nocheck — fixtures intentionally include unary-plus on null/undefined.
 import { describe, expect, test } from "bun:test";
 import { isNumber } from "../src/is-number.ts";
 

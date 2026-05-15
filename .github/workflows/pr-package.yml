@@ -66,8 +66,8 @@ jobs:
       - name: Publish
         env:
           TOKEN: ${{ secrets.PR_PACKAGE_TOKEN }}
-          TAGS: ${{ needs.tags.outputs.tags }}
-          SHORT_SHA: ${{ needs.tags.outputs.short }}
+          TAGS: ${{ needs.tag.outputs.tags }}
+          SHORT_SHA: ${{ needs.tag.outputs.short }}
         working-directory: packages/${{ env.PKG_DIR }}
         run: |
           set -euo pipefail
@@ -83,7 +83,7 @@ jobs:
             -H "Content-Type: application/gzip" \
             --data-binary "@${tgz}"
 
-          INSTALL_URL="https://pkg.ing/${PKG_DIR}/${SHORT_SHA}"
+          INSTALL_URL="https://${PR_PACKAGE_HOST}/${PKG_NAME}/${SHORT_SHA}"
           echo "::notice title=${PKG_NAME}::Install: bun add ${INSTALL_URL}"
           {
             echo "### ${PKG_NAME}"
@@ -107,7 +107,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          SHORT_SHA: ${{ needs.tags.outputs.short }}
+          SHORT_SHA: ${{ needs.tag.outputs.short }}
         run: |
           set -euo pipefail
           MARKER="<!-- pr-package-comment -->"
@@ -120,7 +120,7 @@ jobs:
             echo
             echo "**${PKG_NAME}**"
             echo '```sh'
-            echo "bun add https://pkg.ing/${PKG_DIR}/${SHORT_SHA}"
+            echo "bun add https://${PR_PACKAGE_HOST}/${PKG_NAME}/${SHORT_SHA}"
             echo '```'
           } > /tmp/body.md
 
@@ -150,7 +150,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           SHA: ${{ github.sha }}
-          SHORT_SHA: ${{ needs.tags.outputs.short }}
+          SHORT_SHA: ${{ needs.tag.outputs.short }}
         run: |
           set -euo pipefail
           PKG_NAME=$(node -p "require('./packages/${PKG_DIR}/package.json').name")
@@ -159,7 +159,7 @@ jobs:
             echo
             echo "**${PKG_NAME}**"
             echo '```sh'
-            echo "bun add https://pkg.ing/${PKG_DIR}/${SHORT_SHA}"
+            echo "bun add https://${PR_PACKAGE_HOST}/${PKG_NAME}/${SHORT_SHA}"
             echo '```'
           } > /tmp/body.md
 

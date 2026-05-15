@@ -20,5 +20,8 @@
   },
   "scripts": {
     "test": "bun test"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

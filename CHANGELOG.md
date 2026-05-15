@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.2](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.2) (2026-05-15)
+
+### Features
+
+- vendor in ignore npm package - by Sam Goodwin [(2ec382a)](https://github.com/alchemy-run/node-utils/commit/2ec382a8594b11c84b35cb91763555318c4bec28)
+
 ## [v0.0.1](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.1) (2026-05-15)
 
 ### Features

@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.3](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.3) (2026-05-21)
+
+*No significant changes*
+
 ## [v0.0.2](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.2) (2026-05-15)
 
 ### Features

@@ -17,10 +17,25 @@
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./*": {
-      "bun": "./src/*.ts",
-      "types": "./lib/*.d.ts",
-      "default": "./lib/*.js"
+    "./exit-hook": {
+      "bun": "./src/exit-hook.ts",
+      "types": "./lib/exit-hook.d.ts",
+      "default": "./lib/exit-hook.js"
+    },
+    "./ignore": {
+      "bun": "./src/ignore.ts",
+      "types": "./lib/ignore.d.ts",
+      "default": "./lib/ignore.js"
+    },
+    "./lockfile": {
+      "bun": "./src/lockfile-async.ts",
+      "types": "./lib/lockfile-async.d.ts",
+      "default": "./lib/lockfile-async.js"
+    },
+    "./retry": {
+      "bun": "./src/retry.ts",
+      "types": "./lib/retry.d.ts",
+      "default": "./lib/retry.js"
     }
   },
   "scripts": {

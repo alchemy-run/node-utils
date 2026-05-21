@@ -16,6 +16,11 @@
       "bun": "./src/index.ts",
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
+    },
+    "./*": {
+      "bun": "./src/*.ts",
+      "types": "./lib/*.d.ts",
+      "default": "./lib/*.js"
     }
   },
   "scripts": {

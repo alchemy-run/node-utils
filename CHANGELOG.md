@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.4](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.4) (2026-05-22)
+
+### Features
+
+- vendor foreground-child with stderrFilter option - by Michael K in [#3](https://github.com/alchemy-run/node-utils/pull/3) [(3c3a541)](https://github.com/alchemy-run/node-utils/commit/3c3a541292d328576be5f42e9029fa968d337655)
+
 ## [v0.0.3](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.3) (2026-05-21)
 
 *No significant changes*

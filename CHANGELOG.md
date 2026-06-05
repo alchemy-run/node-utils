@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.5](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.5) (2026-06-05)
+
+### Features
+
+- export Ignore class from ignore module - by @john-royal [(d493df5)](https://github.com/alchemy-run/node-utils/commit/d493df5882a2c5a992499091ed7538d68998e654)
+
 ## [v0.0.4](https://github.com/alchemy-run/node-utils/releases/tag/v0.0.4) (2026-05-22)
 
 ### Features

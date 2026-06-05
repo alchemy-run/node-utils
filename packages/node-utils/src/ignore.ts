@@ -772,7 +772,7 @@ if (
 export default factory as unknown as (
   options?: IgnoreOptions,
 ) => IgnoreInstance;
-export { isPathValid };
+export { isPathValid, Ignore };
 
 // --- Type declarations -----------------------------------------------------
 // (not part of the verbatim upstream source; mirrors upstream `index.d.ts`)

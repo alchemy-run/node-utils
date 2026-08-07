@@ -70,6 +70,32 @@ type AcquireCallback = (
 ) => void;
 
 const locks: Record<string, InternalLock> = {};
+const locksOwnedForExit = new Set<InternalLock>();
+let removeExitHook: (() => void) | undefined;
+
+function removeOwnedLocksOnExit(): void {
+  for (const lock of locksOwnedForExit) {
+    try {
+      lock.options.fs.rmdirSync(lock.lockfilePath);
+    } catch {
+      /* Empty */
+    }
+  }
+}
+
+function trackLockForExit(lock: InternalLock): void {
+  locksOwnedForExit.add(lock);
+  removeExitHook ??= exitHook(removeOwnedLocksOnExit);
+}
+
+function untrackLockForExit(lock: InternalLock): void {
+  locksOwnedForExit.delete(lock);
+
+  if (locksOwnedForExit.size === 0) {
+    removeExitHook?.();
+    removeExitHook = undefined;
+  }
+}
 
 function getLockFile(file: string, options: { lockfilePath?: string }): string {
   return options.lockfilePath || `${file}.lock`;
@@ -302,6 +328,10 @@ function setLockAsCompromised(
   lock: InternalLock,
   err: Error,
 ): void {
+  if (lock.released) {
+    return;
+  }
+
   lock.released = true;
 
   // Cancel lock mtime update
@@ -314,6 +344,7 @@ function setLockAsCompromised(
     delete locks[file];
   }
 
+  untrackLockForExit(lock);
   lock.options.onCompromised(err);
 }
 
@@ -382,6 +413,7 @@ export function lock(
           options: resolved,
           lastUpdate: Date.now(),
         });
+        trackLockForExit(internalLock);
 
         // We must keep the lock fresh to avoid staleness
         updateLock(file, resolved);
@@ -443,7 +475,10 @@ export function unlock(
     lock.released = true;
     delete locks[file];
 
-    removeLock(file, resolved, callback);
+    removeLock(file, resolved, (err) => {
+      untrackLockForExit(lock);
+      callback(err);
+    });
   });
 }
 
@@ -486,17 +521,3 @@ export function check(
 export function getLocks(): Record<string, InternalLock> {
   return locks;
 }
-
-// Remove acquired locks on exit
-/* istanbul ignore next */
-exitHook(() => {
-  for (const file in locks) {
-    const options = locks[file].options;
-
-    try {
-      options.fs.rmdirSync(getLockFile(file, options));
-    } catch (e) {
-      /* Empty */
-    }
-  }
-});
